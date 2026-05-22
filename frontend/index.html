@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time IDS Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-100 min-h-screen p-6">
+
+<div class="max-w-7xl mx-auto">
+
+    <header class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <h1 class="text-4xl font-bold text-slate-800">
+                Real-Time IDS Security Dashboard
+            </h1>
+            <p class="text-slate-500 mt-2">
+                Monitoring network activity and displaying detected security alerts.
+            </p>
+        </div>
+
+        <div id="status" class="bg-green-100 text-green-700 px-5 py-2 rounded-full font-semibold">
+            Status: Connected
+        </div>
+    </header>
+
+    <section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div class="bg-white rounded-xl shadow p-5">
+            <p class="text-sm text-slate-500">Total Alerts</p>
+            <h2 id="total-alerts" class="text-3xl font-bold text-slate-800">0</h2>
+        </div>
+
+        <div class="bg-white rounded-xl shadow p-5">
+            <p class="text-sm text-slate-500">SYN Flood</p>
+            <h2 id="syn-flood-count" class="text-3xl font-bold text-red-600">0</h2>
+        </div>
+
+        <div class="bg-white rounded-xl shadow p-5">
+            <p class="text-sm text-slate-500">Port Scan</p>
+            <h2 id="port-scan-count" class="text-3xl font-bold text-yellow-600">0</h2>
+        </div>
+
+        <div class="bg-white rounded-xl shadow p-5">
+            <p class="text-sm text-slate-500">ICMP Ping Sweep</p>
+            <h2 id="icmp-sweep-count" class="text-3xl font-bold text-blue-600">0</h2>
+        </div>
+    </section>
+
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-red-50 border border-red-200 rounded-xl p-4">
+            <p class="text-sm text-red-600 font-medium">High Severity</p>
+            <h2 id="high-severity-count" class="text-2xl font-bold text-red-700">0</h2>
+        </div>
+
+        <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+            <p class="text-sm text-yellow-600 font-medium">Medium Severity</p>
+            <h2 id="medium-severity-count" class="text-2xl font-bold text-yellow-700">0</h2>
+        </div>
+
+        <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+            <p class="text-sm text-green-600 font-medium">Low Severity</p>
+            <h2 id="low-severity-count" class="text-2xl font-bold text-green-700">0</h2>
+        </div>
+    </section>
+
+    <section class="bg-white rounded-xl shadow overflow-hidden">
+        <div class="p-5 border-b flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <h2 class="text-xl font-bold text-slate-800">Recent Security Alerts</h2>
+                <p class="text-sm text-slate-500">Latest detected network events.</p>
+            </div>
+
+            <div class="flex gap-3">
+                <button onclick="fetchDashboardData()"
+                        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium">
+                    Refresh
+                </button>
+
+                <button onclick="clearAlerts()"
+                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-medium">
+                    Clear Alerts
+                </button>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+                <thead class="bg-slate-50 text-slate-600 uppercase text-xs">
+                <tr>
+                    <th class="px-5 py-3 text-left">Time</th>
+                    <th class="px-5 py-3 text-left">Source IP</th>
+                    <th class="px-5 py-3 text-left">Destination</th>
+                    <th class="px-5 py-3 text-left">Protocol</th>
+                    <th class="px-5 py-3 text-left">Threat</th>
+                    <th class="px-5 py-3 text-left">Severity</th>
+                    <th class="px-5 py-3 text-left">Description</th>
+                </tr>
+                </thead>
+
+                <tbody id="alerts-body" class="divide-y divide-slate-200">
+                <tr>
+                    <td colspan="7" class="px-5 py-6 text-center text-slate-500">
+                        Loading alerts...
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    const API_BASE_URL = "http://127.0.0.1:5000";
+    const ADMIN_TOKEN = "change-this-token";
+
+    function getSeverityBadge(severity) {
+        if (severity === "High") {
+            return "bg-red-100 text-red-700";
+        }
+
+        if (severity === "Medium") {
+            return "bg-yellow-100 text-yellow-700";
+        }
+
+        return "bg-green-100 text-green-700";
+    }
+
+    function getThreatBadge(threatType) {
+        if (threatType === "SYN Flood") {
+            return "bg-red-100 text-red-700";
+        }
+
+        if (threatType === "Port Scan") {
+            return "bg-yellow-100 text-yellow-700";
+        }
+
+        if (threatType === "ICMP Ping Sweep") {
+            return "bg-blue-100 text-blue-700";
+        }
+
+        return "bg-slate-100 text-slate-700";
+    }
+
+    function setConnectionStatus(isConnected) {
+        const status = document.getElementById("status");
+
+        if (isConnected) {
+            status.innerText = "Status: Connected";
+            status.className = "bg-green-100 text-green-700 px-5 py-2 rounded-full font-semibold";
+        } else {
+            status.innerText = "Status: API Connection Error";
+            status.className = "bg-red-100 text-red-700 px-5 py-2 rounded-full font-semibold";
+        }
+    }
+
+    async function fetchStats() {
+        const response = await fetch(`${API_BASE_URL}/stats`);
+        const stats = await response.json();
+
+        document.getElementById("total-alerts").innerText = stats.total_alerts;
+
+        document.getElementById("syn-flood-count").innerText = stats.attack_counts.syn_flood;
+        document.getElementById("port-scan-count").innerText = stats.attack_counts.port_scan;
+        document.getElementById("icmp-sweep-count").innerText = stats.attack_counts.icmp_ping_sweep;
+
+        document.getElementById("high-severity-count").innerText = stats.severity_counts.high;
+        document.getElementById("medium-severity-count").innerText = stats.severity_counts.medium;
+        document.getElementById("low-severity-count").innerText = stats.severity_counts.low;
+    }
+
+    async function fetchAlerts() {
+        const response = await fetch(`${API_BASE_URL}/alerts`);
+        const alerts = await response.json();
+
+        const tableBody = document.getElementById("alerts-body");
+        tableBody.innerHTML = "";
+
+        if (alerts.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="7" class="px-5 py-6 text-center text-slate-500">
+                        No alerts detected yet.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        alerts.forEach(alert => {
+            const destination = alert.destination_port
+                ? `${alert.destination_ip || "Multiple targets"}:${alert.destination_port}`
+                : alert.destination_ip || "Multiple targets";
+
+            const row = `
+                <tr class="hover:bg-slate-50">
+                    <td class="px-5 py-4 whitespace-nowrap text-slate-600">
+                        ${new Date(alert.timestamp).toLocaleString()}
+                    </td>
+
+                    <td class="px-5 py-4 font-medium text-slate-800">
+                        ${alert.source_ip}
+                    </td>
+
+                    <td class="px-5 py-4 text-slate-600">
+                        ${destination}
+                    </td>
+
+                    <td class="px-5 py-4">
+                        <span class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-semibold">
+                            ${alert.protocol || "N/A"}
+                        </span>
+                    </td>
+
+                    <td class="px-5 py-4">
+                        <span class="${getThreatBadge(alert.threat_type)} px-3 py-1 rounded-full text-xs font-semibold">
+                            ${alert.threat_type}
+                        </span>
+                    </td>
+
+                    <td class="px-5 py-4">
+                        <span class="${getSeverityBadge(alert.severity)} px-3 py-1 rounded-full text-xs font-semibold">
+                            ${alert.severity}
+                        </span>
+                    </td>
+
+                    <td class="px-5 py-4 text-slate-600 max-w-md">
+                        ${alert.description}
+                    </td>
+                </tr>
+            `;
+
+            tableBody.insertAdjacentHTML("beforeend", row);
+        });
+    }
+
+    async function fetchDashboardData() {
+        try {
+            await fetchStats();
+            await fetchAlerts();
+            setConnectionStatus(true);
+        } catch (error) {
+            console.error("Dashboard error:", error);
+            setConnectionStatus(false);
+        }
+    }
+
+    async function clearAlerts() {
+        const confirmClear = confirm("Are you sure you want to clear all alerts?");
+
+        if (!confirmClear) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`${API_BASE_URL}/alerts/clear`, {
+                method: "DELETE",
+                headers: {
+                    "X-Admin-Token": ADMIN_TOKEN
+                }
+            });
+
+            if (!response.ok) {
+                alert("Failed to clear alerts. Unauthorized or backend error.");
+                return;
+            }
+
+            await fetchDashboardData();
+        } catch (error) {
+            console.error("Clear alerts error:", error);
+            setConnectionStatus(false);
+        }
+    }
+
+    fetchDashboardData();
+
+    setInterval(fetchDashboardData, 5000);
+</script>
+
+</body>
+</html>
