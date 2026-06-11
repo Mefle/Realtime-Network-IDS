@@ -21,6 +21,7 @@ def simulate_syn_flood():
 
     print("[*] SYN Flood Simulation Complete.")
     
+
 def simulate_port_scan():
     print("[*] Starting Port Scan Simulation...")
 
@@ -40,8 +41,8 @@ def simulate_icmp_sweep():
 
     attacker_ip = f"192.168.1.{random.randint(2, 200)}"
 
-    for i in range(15):
-        target_ip = f"10.0.0.{random.randint(1, 20)}"
+    for i in range(1, 16):
+        target_ip = f"127.0.0.{i}"
 
         packet = IP(src=attacker_ip, dst=target_ip) / ICMP()
         send(packet, verbose=False)
