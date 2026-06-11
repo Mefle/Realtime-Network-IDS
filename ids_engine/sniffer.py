@@ -73,7 +73,6 @@ def analyze_tcp_packet(packet):
         syn_counts[src_ip] += 1
         port_scans[src_ip].add(dst_port)
 
-        # Prevent terminal spam
         if syn_counts[src_ip] % 10 == 0:
             print(f"[TCP] SYN activity | {src_ip} -> {dst_ip} | Count: {syn_counts[src_ip]}")
             sys.stdout.flush()
