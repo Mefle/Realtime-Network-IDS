@@ -62,10 +62,10 @@ Open in browser:
 http://localhost:8080
 
 4. Run IDS engine (requires administrator privileges)
-sudo python ids_engine/sniffer.py
+sudo python3 ids_engine/sniffer.py
 
 6. Run simulation script
-sudo python ids_engine/simulate_scan.py
+sudo python3 ids_engine/simulate_scan.py
 
 **API Endpoints**
 
