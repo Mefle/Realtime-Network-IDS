@@ -39,6 +39,7 @@ JavaScript
 TailwindCSS
 
 **Project Structure**
+
 backend/ - Flask backend API and database models
 ids_engine/ - Packet sniffer and detection logic
 frontend/ - Web-based dashboard interface
