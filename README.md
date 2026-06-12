@@ -70,8 +70,11 @@ sudo python ids_engine/simulate_scan.py
 **API Endpoints**
 
 GET /alerts - Retrieve all alerts
+
 POST /alerts - Create new alert
+
 GET /stats - System statistics
+
 DELETE /alerts/clear - Clear all alerts (admin only)
 
 **Purpose:**
