@@ -1,3 +1,7 @@
 Flask
-Flask-Cors
+Flask-SQLAlchemy
+Flask-CORS
+requests
 scapy
+Werkzeug
+python-dateutil
