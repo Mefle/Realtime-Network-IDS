@@ -63,18 +63,25 @@ def report_alert(source_ip, threat_type, description, severity="Medium",
 
 
 def analyze_tcp_packet(packet):
+
     src_ip = packet[IP].src
     dst_ip = packet[IP].dst
     dst_port = packet[TCP].dport
     flags = packet[TCP].flags
 
-    # SYN without ACK = connection attempt
     if flags & 0x02 and not (flags & 0x10):
+
         syn_counts[src_ip] += 1
         port_scans[src_ip].add(dst_port)
 
         if syn_counts[src_ip] % 10 == 0:
-            print(f"[TCP] SYN activity | {src_ip} -> {dst_ip} | Count: {syn_counts[src_ip]}")
+
+            print(
+                f"[TCP] SYN activity | "
+                f"{src_ip} -> {dst_ip} | "
+                f"Count: {syn_counts[src_ip]}"
+            )
+
             sys.stdout.flush()
 
 
@@ -92,44 +99,71 @@ def analyze_icmp_packet(packet):
 
 
 def evaluate_alerts():
+
+    # SYN Flood Detection
     for ip, count in syn_counts.items():
-        if count > SYN_FLOOD_THRESHOLD:
+
+        unique_ports = len(port_scans[ip])
+
+        if (
+            count > SYN_FLOOD_THRESHOLD
+            and unique_ports <= PORT_SCAN_THRESHOLD
+        ):
+
             if should_send_alert(ip, "SYN Flood"):
+
                 report_alert(
                     source_ip=ip,
-                    destination_ip=None,
-                    destination_port=None,
                     protocol="TCP",
                     threat_type="SYN Flood",
                     severity="High",
-                    description=f"Detected {count} SYN packets within {TIME_WINDOW} seconds. Possible SYN flood attack."
+                    description=(
+                        f"Detected {count} SYN packets within "
+                        f"{TIME_WINDOW} seconds. "
+                        f"Possible SYN flood attack."
+                    )
                 )
 
+    # Port Scan Detection
     for ip, ports in port_scans.items():
+
         if len(ports) > PORT_SCAN_THRESHOLD:
+
             if should_send_alert(ip, "Port Scan"):
+
                 sorted_ports = sorted(list(ports))
+
                 report_alert(
                     source_ip=ip,
-                    destination_ip=None,
-                    destination_port=None,
                     protocol="TCP",
                     threat_type="Port Scan",
                     severity="Medium",
-                    description=f"Detected connection attempts to {len(ports)} unique TCP ports within {TIME_WINDOW} seconds. Scanned ports: {sorted_ports[:20]}"
+                    description=(
+                        f"Detected connection attempts to "
+                        f"{len(ports)} unique TCP ports within "
+                        f"{TIME_WINDOW} seconds. "
+                        f"Scanned ports: {sorted_ports[:20]}"
+                    )
                 )
 
+    # ICMP Sweep Detection
     for ip, destinations in icmp_sweeps.items():
+
         if len(destinations) > ICMP_SWEEP_THRESHOLD:
+
             if should_send_alert(ip, "ICMP Ping Sweep"):
+
                 report_alert(
                     source_ip=ip,
-                    destination_ip=None,
-                    destination_port=None,
                     protocol="ICMP",
                     threat_type="ICMP Ping Sweep",
                     severity="Medium",
-                    description=f"Detected ICMP echo requests to {len(destinations)} unique destinations within {TIME_WINDOW} seconds. Possible host discovery activity."
+                    description=(
+                        f"Detected ICMP echo requests to "
+                        f"{len(destinations)} unique destinations "
+                        f"within {TIME_WINDOW} seconds. "
+                        f"Possible host discovery activity."
+                    )
                 )
 
 
