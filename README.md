@@ -49,32 +49,25 @@ requirements.txt - Project dependencies
 **How to Run the Project**
 
 1. Install dependencies
-
 pip install -r requirements.txt
 
 2. Run the backend server
-
 python backend/app.py
-
 Backend runs on:
 http://127.0.0.1:5000
 
 3. Run the frontend
-
 python -m http.server 8080
-
 Open in browser:
 http://localhost:8080
 
 4. Run IDS engine (requires administrator privileges)
-
 sudo python ids_engine/sniffer.py
 
-5. Run simulation script
-
+6. Run simulation script
 sudo python ids_engine/simulate_scan.py
 
-API Endpoints
+**API Endpoints**
 
 GET /alerts - Retrieve all alerts
 POST /alerts - Create new alert
