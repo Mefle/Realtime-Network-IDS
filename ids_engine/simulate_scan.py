@@ -57,13 +57,13 @@ if __name__ == "__main__":
     print("Launching IDS Attack Simulation Suite")
     print("=" * 60)
 
-    #simulate_port_scan()
-    #time.sleep(2)
+    simulate_port_scan()
+    time.sleep(2)
 
     simulate_syn_flood()
     time.sleep(2)
 
-    #simulate_icmp_sweep()
+    simulate_icmp_sweep()
 
     print("=" * 60)
     print("All attack simulations completed successfully.")
