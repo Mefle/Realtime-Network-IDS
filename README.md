@@ -7,6 +7,7 @@ This project is a real-time Intrusion Detection System designed to monitor netwo
 The system operates in a controlled environment and is intended for educational and research purposes in network security.
 
 **System Components**
+
 The project consists of the following main components:
   IDS Engine (Sniffer): Captures and analyzes network packets using Scapy and applies detection rules.
   Backend API: Built with Flask, responsible for receiving alerts and storing them in the database.
