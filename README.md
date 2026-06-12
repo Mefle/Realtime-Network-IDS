@@ -1,5 +1,6 @@
 **Real-Time Network Intrusion Detection System (IDS)**
-Overview
+
+**Overview**
 
 This project is a real-time Intrusion Detection System designed to monitor network traffic and detect malicious activities such as SYN Flood attacks, Port Scanning, and ICMP Ping Sweeps. The system is built using a modular architecture that separates packet detection, backend processing, data storage, and visualization.
 
@@ -13,6 +14,7 @@ The project consists of the following main components:
   Frontend Dashboard: A web interface that displays alerts and statistics in real time.
   
 **Features**
+
 Real-time network packet monitoring
 Detection of SYN Flood attacks
 Detection of Port Scan activities
@@ -23,6 +25,7 @@ Live dashboard for visualization of alerts and statistics
 Simulation scripts for generating test traffic
 
 **Technologies Used**
+
 Python
 Flask
 Flask-SQLAlchemy
@@ -42,6 +45,7 @@ simulation/ - Traffic simulation scripts
 requirements.txt - Project dependencies
 
 **How to Run the Project**
+
 1. Install dependencies
 
 pip install -r requirements.txt
@@ -76,6 +80,7 @@ GET /stats - System statistics
 DELETE /alerts/clear - Clear all alerts (admin only)
 
 **Purpose:**
+
 This project demonstrates the implementation of a basic intrusion detection system capable of detecting network attacks in real time using Python-based tools.
 
 **Disclaimer:**
